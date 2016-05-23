@@ -18,16 +18,23 @@ if [ $1 == 'chipram' ]; then
 	make -C chipram CROSS_COMPILE=arm-eabi- O=../out/target/product/$PROJ/obj/chipram distclean
 	make -C chipram CROSS_COMPILE=arm-eabi- O=../out/target/product/$PROJ/obj/chipram ${PROJ}_config
 	make -C chipram CROSS_COMPILE=arm-eabi- AP_VERSION="" O=../out/target/product/$PROJ/obj/chipram
-	cp /media/newdata/all_new_code/sprd_l1_7731/out/target/product/$PROJ/obj/chipram/nand_fdl/fdl1.bin /media/newdata/all_new_code/sprd_l1_7731/out/target/product/$PROJ
-	cp /media/newdata/all_new_code/sprd_l1_7731/out/target/product/$PROJ/obj/chipram/nand_spl/u-boot-spl-16k.bin /media/newdata/all_new_code/sprd_l1_7731/out/target/product/$PROJ
+	cp ${OUT_DIR}/obj/chipram/nand_fdl/fdl1.bin ${OUT_DIR}
+	cp ${OUT_DIR}/obj/chipram/nand_spl/u-boot-spl-16k.bin ${OUT_DIR}
 fi
 
 if [ $1 == 'bootloader' ]; then
-	#make -C u-boot64 CROSS_COMPILE=arm-eabi- O=../out/target/product/$PROJ/obj/u-boot64 distclean
-	make -C u-boot64 CROSS_COMPILE=arm-eabi- DEBUGF=true CONFIG_BOARD=false O=../out/target/product/$PROJ/obj/u-boot64 ${PROJ}_config
+	if [[ $PROJ == *"scx20"* ]]; then
+		echo "ori project xxxxx"
+		KCF_PROJ=${PROJ/scx20_/ }
+		echo $KCF_PROJ
+	else
+		KCF_PROJ=${PROJ}
+	fi
+	make -C u-boot64 CROSS_COMPILE=arm-eabi- O=../out/target/product/$PROJ/obj/u-boot64 distclean
+	make -C u-boot64 CROSS_COMPILE=arm-eabi- DEBUGF=true CONFIG_BOARD=false O=../out/target/product/$PROJ/obj/u-boot64 ${KCF_PROJ}_config
 	make -C u-boot64 CROSS_COMPILE=arm-eabi- DEBUGF=true CONFIG_BOARD=false O=../out/target/product/$PROJ/obj/u-boot64
-	cp /media/newdata/all_new_code/sprd_l1_7731/out/target/product/$PROJ/obj/u-boot64/u-boot.bin /media/newdata/all_new_code/sprd_l1_7731/out/target/product/$PROJ/ 
-	cp /media/newdata/all_new_code/sprd_l1_7731/out/target/product/$PROJ/obj/u-boot64/fdl2.bin /media/newdata/all_new_code/sprd_l1_7731/out/target/product/$PROJ/ 
+	cp ${OUT_DIR}/obj/u-boot64/u-boot.bin ${OUT_DIR}
+	cp ${OUT_DIR}/obj/u-boot64/fdl2.bin ${OUT_DIR}
 	fi
 
 if [ $1 == 'bootimage' ]; then
@@ -36,11 +43,17 @@ if [ $1 == 'bootimage' ]; then
 	JLINK_KERNEL_OUT_TOP=out/target/product/$PROJ/obj/JLINK_KERNEL
 	JLINK_KERNEL_OUT=../out/target/product/$PROJ/obj/JLINK_KERNEL
 	JLINK_DTC_OUT=out/target/product/$PROJ/obj/JLINK_KERNEL/scripts/dtc/
-	JLINK_DTC_OUT2=out/target/product/$PROJ/obj/KERNEL/arch/arm/boot/dts/
+	JLINK_DTC_OUT2=out/target/product/$PROJ/obj/JLINK_KERNEL/arch/arm/boot/dts/
 	mkdir ${JLINK_KERNEL_OUT_TOP}
+	if [[ $PROJ == *"scx20"* ]]; then
+		echo "ori project xxxxx"
+		KCF_PROJ=${PROJ/scx20_/ }
+		echo $KCF_PROJ
+	else
+		KCF_PROJ=${PROJ}
+	fi
 
-
-	make ARCH=arm -C kernel O=${JLINK_KERNEL_OUT} ${PROJ}_dt_defconfig
+	make ARCH=arm -C kernel O=${JLINK_KERNEL_OUT} ${KCF_PROJ}_dt_defconfig
 	make -C kernel O=${JLINK_KERNEL_OUT} ARCH=arm CROSS_COMPILE=arm-eabi- headers_install
 	make -C kernel O=${JLINK_KERNEL_OUT} ARCH=arm CROSS_COMPILE=arm-eabi- -j8
 	#make -C kernel O=${JLINK_KERNEL_OUT} ARCH=arm CROSS_COMPILE=arm-eabi- modules

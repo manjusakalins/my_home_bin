@@ -19,6 +19,11 @@ COM_DEFS_FOR_MT6735_2G_MT6169_CUSTOM  = MT6169_2G_RF MT6735_2G_MT6169_CUSTOM
 COM_DEFS_FOR_MT6735_MT6169_UMTS_TDD_CUSTOM = MT6169_RF MT6169_UMTS_TDD MT6735_MT6169_UMTS_TDD_CUSTOM
 COM_DEFS_FOR_MT6735_UMTS_FDD_MT6169_CUSTOM = MT6169_RF MT6169_UMTS_FDD MT6735_UMTS_FDD_MT6169_CUSTOM" | sed 's/CUSTOM/'$dest_name'/g'
 
+echo "COM_DEFS_FOR_MT6735_LTE_MT6169_CUSTOM = MT6169_RF MT6169_LTE_RF MT6735_LTE_MT6169_CUSTOM
+COM_DEFS_FOR_MT6735_2G_MT6169_CUSTOM  = MT6169_2G_RF MT6735_2G_MT6169_CUSTOM
+COM_DEFS_FOR_MT6735_MT6169_UMTS_TDD_CUSTOM = MT6169_RF MT6169_UMTS_TDD MT6735_MT6169_UMTS_TDD_CUSTOM
+COM_DEFS_FOR_MT6735_UMTS_FDD_MT6169_CUSTOM = MT6169_RF MT6169_UMTS_FDD MT6735_UMTS_FDD_MT6169_CUSTOM" | sed 's/CUSTOM/'$dest_name'/g' >> make/Option.mak
+
 echo "copy make/xx.mak and copy make/custom_config/xx.mak modify like:"
 echo "
 
@@ -38,3 +43,28 @@ echo "
 
 
 "
+if [[ $source_name == "CUSTOM" ]]
+then
+LWG_SOURCE_MAK="make/JHZ6735M_65C_VF_L(LWG_DSDS).mak"
+LWG_SOURCE_EXT_MAK="make/custom_config/JHZ6735M_65C_VF_L(LWG_DSDS)_EXT.mak"
+else
+LWG_SOURCE_MAK="make/JHZ6735M_65C_VF_L(LWG_DSDS_${source_name}).mak"
+LWG_SOURCE_EXT_MAK="make/custom_config/JHZ6735M_65C_VF_L(LWG_DSDS_${source_name})_EXT.mak"
+fi
+
+
+## start for lwg ############
+cp -rf $LWG_SOURCE_MAK "make/JHZ6735M_65C_VF_L(LWG_DSDS_${dest_name}).mak"
+cp -rf $LWG_SOURCE_EXT_MAK "make/custom_config/JHZ6735M_65C_VF_L(LWG_DSDS_${dest_name})_EXT.mak"
+
+
+cat  $LWG_SOURCE_MAK | sed 's/MT6735_2G_MT6169_'${source_name}'/MT6735_2G_MT6169_'${dest_name}'/g' > rf_2g;
+cat rf_2g | sed 's/MT6735_LTE_MT6169_'${source_name}'/MT6735_LTE_MT6169_'${dest_name}'/g' > rf_lte;
+cat rf_lte | sed 's/MT6735_UMTS_FDD_MT6169_'${source_name}'/MT6735_UMTS_FDD_MT6169_'${dest_name}'/g' > rf_utms
+cat rf_utms | sed 's/^PROJECT_MAKEFILE_EXT = .*//g' | sed '$ i PROJECT_MAKEFILE_EXT = JHZ6735M_65C_VF_L(LWG_DSDS_'${dest_name}')_EXT' > rf_last
+#cat rf_utms | sed '/_EXT.mak/d' > rf_no_last
+#cat rf_last >> rf_no_last
+mv rf_last "make/JHZ6735M_65C_VF_L(LWG_DSDS_${dest_name}).mak"
+
+
+
