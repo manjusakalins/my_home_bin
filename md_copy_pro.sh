@@ -1,4 +1,7 @@
 
+echo "run sample: ./xx CUSTOM S960_USA"
+
+
 dirlist='el1_rf/MT6735_LTE_MT6169_ l1_rf/MT6735_2G_MT6169_ mml1_rf/MT6735_MMRF_ tl1_rf/MT6735_MT6169_UMTS_TDD_ ul1_rf/MT6735_UMTS_FDD_MT6169_'
 custom_dir="custom/modem"
 root_dir=$(pwd)
@@ -12,59 +15,67 @@ do
 	cp -rf $cur_dir$source_name $cur_dir$dest_name
 done
 
-
-echo "add below to make/Option.mak:"
-echo "COM_DEFS_FOR_MT6735_LTE_MT6169_CUSTOM = MT6169_RF MT6169_LTE_RF MT6735_LTE_MT6169_CUSTOM
-COM_DEFS_FOR_MT6735_2G_MT6169_CUSTOM  = MT6169_2G_RF MT6735_2G_MT6169_CUSTOM
-COM_DEFS_FOR_MT6735_MT6169_UMTS_TDD_CUSTOM = MT6169_RF MT6169_UMTS_TDD MT6735_MT6169_UMTS_TDD_CUSTOM
-COM_DEFS_FOR_MT6735_UMTS_FDD_MT6169_CUSTOM = MT6169_RF MT6169_UMTS_FDD MT6735_UMTS_FDD_MT6169_CUSTOM" | sed 's/CUSTOM/'$dest_name'/g'
-
+### add to make/Option.mak
 echo "COM_DEFS_FOR_MT6735_LTE_MT6169_CUSTOM = MT6169_RF MT6169_LTE_RF MT6735_LTE_MT6169_CUSTOM
 COM_DEFS_FOR_MT6735_2G_MT6169_CUSTOM  = MT6169_2G_RF MT6735_2G_MT6169_CUSTOM
 COM_DEFS_FOR_MT6735_MT6169_UMTS_TDD_CUSTOM = MT6169_RF MT6169_UMTS_TDD MT6735_MT6169_UMTS_TDD_CUSTOM
 COM_DEFS_FOR_MT6735_UMTS_FDD_MT6169_CUSTOM = MT6169_RF MT6169_UMTS_FDD MT6735_UMTS_FDD_MT6169_CUSTOM" | sed 's/CUSTOM/'$dest_name'/g' >> make/Option.mak
 
-echo "copy make/xx.mak and copy make/custom_config/xx.mak modify like:"
-echo "
-
-./Option.mak:COM_DEFS_FOR_MT6735_LTE_MT6169_S960_EUR = MT6169_RF MT6169_LTE_RF MT6735_LTE_MT6169_S960_EUR
-./Option.mak:COM_DEFS_FOR_MT6735_2G_MT6169_S960_EUR  = MT6169_2G_RF MT6735_2G_MT6169_S960_EUR
-./Option.mak:COM_DEFS_FOR_MT6735_MT6169_UMTS_TDD_S960_EUR = MT6169_RF MT6169_UMTS_TDD MT6735_MT6169_UMTS_TDD_S960_EUR
-./Option.mak:COM_DEFS_FOR_MT6735_UMTS_FDD_MT6169_S960_EUR = MT6169_RF MT6169_UMTS_FDD MT6735_UMTS_FDD_MT6169_S960_EUR
-
-./JHZ6735M_65C_VF_L(LWG_DSDS_S960_EUR).mak:RF_MODULE = MT6735_2G_MT6169_S960_EUR
-./JHZ6735M_65C_VF_L(LWG_DSDS_S960_EUR).mak:LTE_RF_MODULE = MT6735_LTE_MT6169_S960_EUR
-./JHZ6735M_65C_VF_L(LWG_DSDS_S960_EUR).mak:UMTS_RF_MODULE = MT6735_UMTS_FDD_MT6169_S960_EUR
-./JHZ6735M_65C_VF_L(LWG_DSDS_S960_EUR).mak:PROJECT_MAKEFILE_EXT = JHZ6735M_65C_VF_L(LWG_DSDS_S960_EUR)_EXT
-./custom_config/JHZ6735M_65C_VF_L(LWG_DSDS_S960_EUR)_EXT.mak:MM_RF_MODULE = MT6735_MMRF_S960_EUR
-./custom_config/JHZ6735M_65C_VF_L(LWG_DSDS_S960_EUR)_EXT.mak:COM_DEFS_FOR_MT6735_LTE_MT6169_S960_EUR  = MT6169_RF MT6169_LTE_RF MT6735_LTE_MT6169_S960_EUR
-./custom_config/JHZ6735M_65C_VF_L(LWG_DSDS_S960_EUR)_EXT.mak:COM_DEFS_FOR_MT6735_2G_MT6169_S960_EUR   = MT6169_2G_RF  MT6735_2G_MT6169_S960_EUR
-./custom_config/JHZ6735M_65C_VF_L(LWG_DSDS_S960_EUR)_EXT.mak:COM_DEFS_FOR_MT6735_UMTS_FDD_MT6169_S960_EUR  = MT6169_RF MT6169_UMTS_FDD MT6735_UMTS_FDD_MT6169_S960_EUR
 
 
-"
+function sed_replace()
+{
+    echo $1 $2 $3
+    cat  $1 | sed 's/'$2'/'$3'/g' > re_tmp;
+    mv re_tmp $1;
+}
+
 if [[ $source_name == "CUSTOM" ]]
 then
+#THE orignal source files
 LWG_SOURCE_MAK="make/JHZ6735M_65C_VF_L(LWG_DSDS).mak"
 LWG_SOURCE_EXT_MAK="make/custom_config/JHZ6735M_65C_VF_L(LWG_DSDS)_EXT.mak"
+LTTG_SOURCE_MAK="make/JHZ6735M_65C_VF_L(LTTG_DSDS).mak"
+LTTG_SOURCE_EXT_MAK="make/custom_config/JHZ6735M_65C_VF_L(LTTG_DSDS)_EXT.mak"
 else
 LWG_SOURCE_MAK="make/JHZ6735M_65C_VF_L(LWG_DSDS_${source_name}).mak"
 LWG_SOURCE_EXT_MAK="make/custom_config/JHZ6735M_65C_VF_L(LWG_DSDS_${source_name})_EXT.mak"
+LTTG_SOURCE_MAK="make/JHZ6735M_65C_VF_L(LTTG_DSDS_${source_name}).mak"
+LTTG_SOURCE_EXT_MAK="make/custom_config/JHZ6735M_65C_VF_L(LTTG_DSDS_${source_name})_EXT.mak"
 fi
+LWG_DST_MAK="make/JHZ6735M_65C_VF_L(LWG_DSDS_${dest_name}).mak"
+LWG_DST_EXT_MAK="make/custom_config/JHZ6735M_65C_VF_L(LWG_DSDS_${dest_name})_EXT.mak"
+LTTG_DST_MAK="make/JHZ6735M_65C_VF_L(LTTG_DSDS_${dest_name}).mak"
+LTTG_DST_EXT_MAK="make/custom_config/JHZ6735M_65C_VF_L(LTTG_DSDS_${dest_name})_EXT.mak"
 
 
-## start for lwg ############
-cp -rf $LWG_SOURCE_MAK "make/JHZ6735M_65C_VF_L(LWG_DSDS_${dest_name}).mak"
-cp -rf $LWG_SOURCE_EXT_MAK "make/custom_config/JHZ6735M_65C_VF_L(LWG_DSDS_${dest_name})_EXT.mak"
+################## start for lwg ############
+cp -rf $LWG_SOURCE_MAK $LWG_DST_MAK
+cp -rf $LWG_SOURCE_EXT_MAK $LWG_DST_EXT_MAK
+
+sed_replace ${LWG_DST_MAK} MT6735_LTE_MT6169_${source_name}  MT6735_LTE_MT6169_${dest_name}
+sed_replace ${LWG_DST_MAK} MT6735_2G_MT6169_${source_name}  MT6735_2G_MT6169_${dest_name}
+sed_replace ${LWG_DST_MAK} MT6735_UMTS_FDD_MT6169_${source_name}  MT6735_UMTS_FDD_MT6169_${dest_name}
+cat ${LWG_DST_MAK} | sed 's/^PROJECT_MAKEFILE_EXT = .*//g' | sed '$ i PROJECT_MAKEFILE_EXT = JHZ6735M_65C_VF_L(LWG_DSDS_'${dest_name}')_EXT' > rf_last
+mv rf_last ${LWG_DST_MAK};
+
+sed_replace ${LWG_DST_EXT_MAK} MT6735_LTE_MT6169_${source_name}  MT6735_LTE_MT6169_${dest_name}
+sed_replace ${LWG_DST_EXT_MAK} MT6735_2G_MT6169_${source_name}  MT6735_2G_MT6169_${dest_name}
+sed_replace ${LWG_DST_EXT_MAK} MT6735_MMRF_${source_name}  MT6735_MMRF_${dest_name}
+sed_replace ${LWG_DST_EXT_MAK} MT6735_UMTS_FDD_MT6169_${source_name}  MT6735_UMTS_FDD_MT6169_${dest_name}
 
 
-cat  $LWG_SOURCE_MAK | sed 's/MT6735_2G_MT6169_'${source_name}'/MT6735_2G_MT6169_'${dest_name}'/g' > rf_2g;
-cat rf_2g | sed 's/MT6735_LTE_MT6169_'${source_name}'/MT6735_LTE_MT6169_'${dest_name}'/g' > rf_lte;
-cat rf_lte | sed 's/MT6735_UMTS_FDD_MT6169_'${source_name}'/MT6735_UMTS_FDD_MT6169_'${dest_name}'/g' > rf_utms
-cat rf_utms | sed 's/^PROJECT_MAKEFILE_EXT = .*//g' | sed '$ i PROJECT_MAKEFILE_EXT = JHZ6735M_65C_VF_L(LWG_DSDS_'${dest_name}')_EXT' > rf_last
-#cat rf_utms | sed '/_EXT.mak/d' > rf_no_last
-#cat rf_last >> rf_no_last
-mv rf_last "make/JHZ6735M_65C_VF_L(LWG_DSDS_${dest_name}).mak"
+################## start for lttg ############
+cp -rf $LTTG_SOURCE_MAK $LTTG_DST_MAK
+cp -rf $LTTG_SOURCE_EXT_MAK $LTTG_DST_EXT_MAK
 
+sed_replace ${LTTG_DST_MAK} MT6735_LTE_MT6169_${source_name}  MT6735_LTE_MT6169_${dest_name}
+sed_replace ${LTTG_DST_MAK} MT6735_2G_MT6169_${source_name}  MT6735_2G_MT6169_${dest_name}
+sed_replace ${LTTG_DST_MAK} MT6735_MT6169_UMTS_TDD_${source_name}  MT6735_MT6169_UMTS_TDD_${dest_name}
+cat ${LTTG_DST_MAK} | sed 's/^PROJECT_MAKEFILE_EXT = .*//g' | sed '$ i PROJECT_MAKEFILE_EXT = JHZ6735M_65C_VF_L(LTTG_DSDS_'${dest_name}')_EXT' > rf_last
+mv rf_last ${LTTG_DST_MAK};
 
-
+sed_replace ${LTTG_DST_EXT_MAK} MT6735_LTE_MT6169_${source_name}  MT6735_LTE_MT6169_${dest_name}
+sed_replace ${LTTG_DST_EXT_MAK} MT6735_2G_MT6169_${source_name}  MT6735_2G_MT6169_${dest_name}
+sed_replace ${LTTG_DST_EXT_MAK} MT6735_MMRF_${source_name}  MT6735_MMRF_${dest_name}
+sed_replace ${LTTG_DST_EXT_MAK} MT6735_MT6169_UMTS_TDD_${source_name}  MT6735_MT6169_UMTS_TDD_${dest_name}
