@@ -79,3 +79,8 @@ sed_replace ${LTTG_DST_EXT_MAK} MT6735_LTE_MT6169_${source_name}  MT6735_LTE_MT6
 sed_replace ${LTTG_DST_EXT_MAK} MT6735_2G_MT6169_${source_name}  MT6735_2G_MT6169_${dest_name}
 sed_replace ${LTTG_DST_EXT_MAK} MT6735_MMRF_${source_name}  MT6735_MMRF_${dest_name}
 sed_replace ${LTTG_DST_EXT_MAK} MT6735_MT6169_UMTS_TDD_${source_name}  MT6735_MT6169_UMTS_TDD_${dest_name}
+
+chmod 775 $LWG_DST_MAK
+chmod 775 $LTTG_DST_MAK
+chmod 775 $LWG_DST_EXT_MAK
+chmod 775 $LTTG_DST_EXT_MAK
