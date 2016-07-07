@@ -34,6 +34,7 @@ if [ $1 == 'bootloader' ]; then
 	make -C u-boot64 CROSS_COMPILE=arm-eabi- DEBUGF=true CONFIG_BOARD=false O=../out/target/product/$PROJ/obj/u-boot64 ${KCF_PROJ}_config
 	make -C u-boot64 CROSS_COMPILE=arm-eabi- DEBUGF=true CONFIG_BOARD=false O=../out/target/product/$PROJ/obj/u-boot64
 	cp ${OUT_DIR}/obj/u-boot64/u-boot.bin ${OUT_DIR}
+	cp ${OUT_DIR}/obj/u-boot64/u-boot.bin ${OUT_DIR}/fdl2.bin
 	cp ${OUT_DIR}/obj/u-boot64/fdl2.bin ${OUT_DIR}
 	fi
 
@@ -62,6 +63,34 @@ if [ $1 == 'bootimage' ]; then
 	out/host/linux-x86/bin/dtbTool -o $OUT_DIR/dt.img -s 2048 -p ${JLINK_DTC_OUT} ${JLINK_DTC_OUT2}
 	out/host/linux-x86/bin/mkbootfs $OUT_DIR/root | out/host/linux-x86/bin/minigzip > $OUT_DIR/ramdisk.img
 	out/host/linux-x86/bin/mkbootimg  --kernel $OUT_DIR/kernel --ramdisk $OUT_DIR/ramdisk.img --cmdline "console=ttyS1,115200n8" --base 0x00000000 --pagesize 2048 --dt $OUT_DIR/dt.img  --output $OUT_DIR/boot.img
+fi
+
+if [ $1 == 'recovery' ]; then
+
+	echo $KROOT;
+	JLINK_KERNEL_OUT_TOP=out/target/product/$PROJ/obj/JLINK_KERNEL
+	JLINK_KERNEL_OUT=../out/target/product/$PROJ/obj/JLINK_KERNEL
+	JLINK_DTC_OUT=out/target/product/$PROJ/obj/JLINK_KERNEL/scripts/dtc/
+	JLINK_DTC_OUT2=out/target/product/$PROJ/obj/JLINK_KERNEL/arch/arm/boot/dts/
+	mkdir ${JLINK_KERNEL_OUT_TOP}
+	if [[ $PROJ == *"scx20"* ]]; then
+		echo "ori project xxxxx"
+		KCF_PROJ=${PROJ/scx20_/ }
+		echo $KCF_PROJ
+	else
+		KCF_PROJ=${PROJ}
+	fi
+
+	make ARCH=arm -C kernel O=${JLINK_KERNEL_OUT} ${KCF_PROJ}_dt_defconfig
+	make -C kernel O=${JLINK_KERNEL_OUT} ARCH=arm CROSS_COMPILE=arm-eabi- headers_install
+	make -C kernel O=${JLINK_KERNEL_OUT} ARCH=arm CROSS_COMPILE=arm-eabi- -j8
+	#make -C kernel O=${JLINK_KERNEL_OUT} ARCH=arm CROSS_COMPILE=arm-eabi- modules
+	cp ${JLINK_KERNEL_OUT_TOP}/arch/arm/boot/Image $OUT_DIR/kernel
+
+	out/host/linux-x86/bin/dtbTool -o $OUT_DIR/dt.img -s 2048 -p ${JLINK_DTC_OUT} ${JLINK_DTC_OUT2}
+	out/host/linux-x86/bin/mkbootfs $OUT_DIR/recovery/root | out/host/linux-x86/bin/minigzip > $OUT_DIR/ramdisk-recovery.img
+	out/host/linux-x86/bin/mkbootimg  --kernel $OUT_DIR/kernel --ramdisk $OUT_DIR/ramdisk-recovery.img --cmdline "console=ttyS1,115200n8" --base 0x00000000 --pagesize 2048 --dt $OUT_DIR/dt.img  --output $OUT_DIR/recovery.img
+
 
 fi
 

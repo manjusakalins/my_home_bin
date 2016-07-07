@@ -22,6 +22,8 @@ then
 else
 
 $(pwd)/./make.sh "$MAKEFILES" new
+dirname=${MAKEFILES/.mak/}
 perl /home/manjusaka/all_codes/6735l1/device/mediatek/build/build/tools/modemRenameCopy.pl $(pwd) "$MAKEFILES"
+perl /home/manjusaka/all_codes/6735l1/device/mediatek/build/build/tools/modemRenameCopy.pl $(pwd) "$dirname"
 mv temp_modem "$MAKEFILES"
 fi

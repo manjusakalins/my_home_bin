@@ -1,4 +1,7 @@
 adb remount;
+adb push modem_1_wg_n.img /system/etc/firmware/;
+adb push catcher_filter_1_wg_n.bin /system/etc/firmware/;
+
 adb push modem_1_lwg_n.img /system/etc/firmware/;
 adb push dsp_1_lwg_n.bin /system/etc/firmware/;
 adb push catcher_filter_1_lwg_n.bin /system/etc/firmware/;
