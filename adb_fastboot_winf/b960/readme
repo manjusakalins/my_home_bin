@@ -1,0 +1,7 @@
+1
+adb reboot bootloader
+
+2
+fastboot flash wcnmodem SC8800G_x30g_wcn_dts_modem.bin
+fastboot flash wcnfixnv1 nvitem_wcn.bin
+

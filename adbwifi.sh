@@ -1,1 +1,1 @@
-/home/manjusaka/all_codes/my_codes/adb_wifi/adbwifi.sh
+/home/manjusaka/all_codes/my_codes/misc_tools/adb_wifi/adbwifi.sh

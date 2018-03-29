@@ -506,7 +506,7 @@ class Functions(object):
 		submit=self.conf.getConf('Submit', 'Are you sure to commit to Git Server?  (yes|no)')
 		if submit == "yes":		
 			#result=commands.getstatusoutput("git push ssh://192.168.8.201:29418%s %s:refs/for/%s") % (modulepath,lbranch,rbranch)
-			pushcmd = 'git push ssh://%s@192.168.8.201:29418/%s %s:refs/for/%s --tags' % (name,modulepath,lbranch,rbranch)
+			pushcmd = 'git push ssh://%s@192.168.8.204:29418/%s %s:refs/for/%s --tags' % (name,modulepath,lbranch,rbranch)
 			print pushcmd
 			result=commands.getstatusoutput(pushcmd)
 			if result[0] >> 8 != 0:

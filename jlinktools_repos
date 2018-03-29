@@ -1,0 +1,715 @@
+#!/bin/sh
+
+## repo default configuration
+##
+#REPO_URL='git@192.168.8.201:repo.git'
+REPO_URL=''
+REPO_REV='stable'
+# Copyright (C) 2008 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+magic='--calling-python-from-/bin/sh--'
+"""exec" python -E "$0" "$@" """#$magic"
+if __name__ == '__main__':
+  import sys
+  if sys.argv[-1] == '#%s' % magic:
+    del sys.argv[-1]
+del magic
+
+# increment this whenever we make important changes to this script
+VERSION = (1, 10)
+
+# increment this if the MAINTAINER_KEYS block is modified
+KEYRING_VERSION = (1,0)
+# 192.168.8.46 's key
+MAINTAINER_KEYS_46 = """
+    guxiaofeng <guxiaofeng@jlinksz.com>
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1
+
+mQENBFglaRoBCACsLzsFaL4GV+gTozdUsauWTS1H6EB2U9KHqa2Xr2CYjSOYKwxg
+fIyANCToFnq0Dxj3EEYTlVG+llcyjyKAYS3DvCS4dqU2Ap2QiYJP5zSQUTGhBWlk
+8EjYcBKaoxzc+wL3ClGG5fgkK6WcThXW417XdY7i90H9X4Sas74G6iWiyZkhIfxF
+NQlaAMqrPC2ah/TRO2vZzDjqk99qiLf52u4VRL51RI1k5GIBxGFHvFwikluISZx9
+7PceqMp0Wib3ndjDfYBDWb1KWPS43Qnx//eFKA86hzJSQv5v7YbAoc6bjhEZej7r
+iKP32XoslSls1blzYEK671r334Mdl6zA50qnABEBAAG0I2d1eGlhb2ZlbmcgPGd1
+eGlhb2ZlbmdAamxpbmtzei5jb20+iQE4BBMBAgAiBQJYJWkaAhsDBgsJCAcDAgYV
+CAIJCgsEFgIDAQIeAQIXgAAKCRDlROpVMxm8BZsrB/9AM/60Il+oMQ/WJzb2KORt
+Jiv/dlfePjFWNjXBbTiGy8xf9BmTflDrLY4BihKFl/FhMChMuSrlotqIKOr/a9lw
+eCiVmd6H+VpyQoHPI+NCtgQnP2ZUdcWRn9gbg7iOKPTae6Qh6uQx9VZL7UaZZ3nN
+hfxgYxEQV9PG0k7kheTROlwEpoAFvviHGJWcfxTSTREPLJMeYGbfrdycqd0DogCY
+qi4gzqjCTj4j6qz/NM1HEO8WkKFrX4ieBmsV3dnXuNXzuESAxj9vQbJli4j3T2lc
+kHtpSjD+7VKsViiC9frZhuiTAHSFs5oDDZMSONGWTTuge4lVNnWsjdFPOZzT2W6r
+uQENBFglaRoBCACrNoYdwwTmgYLAIvJMCYYiVb6ul9ZbinD8WWtaP7i31oGRJZBa
+UQYwcjutCyhP62qrZRIzS7QghdIlpMTdd5FCDGKqmxIcCRTDjOnl2OfaSZt0lrrV
+u1j7dV+/HExaHnEYcvD4QQ6buAvI+pCkgO7+3CB7ADBP2/V5KhNsTFXSQfyy1lXa
+wnvMkCtrGBYst0pu6uxbNIr0z4VsdUsztqrSSaQsSpblJ/EGgwmAEkKsBffS1HSH
+0N3sklH5oJVYqqvXsaxLIODCswaok9yqUYTinShOry82OiMsmktVupHvACjPg9C4
+juw/bRADt4Wyvy15wW3NLNoDT2GrY2Td8oBbABEBAAGJAR8EGAECAAkFAlglaRoC
+GwwACgkQ5UTqVTMZvAWShwf/RJJ0CsMkU8E2koiRS4jerK7/UWlLgpu35miKBZSK
+GD98jjkUQ2ukYMYBBTnF7nSv0JzlBage8myGTJ/z37WTORrpDSoz2N3LVKf8aoLH
+A4rBZM45u0wVPr7z/kZSV+CqmWRJZk/pXjW9/u9J9rVR1Xx6HJSrtqrjBHIKH/KO
+YtFrmoMGtsrQLm+X99pmpsHcNzAAI6GV46AHuHjD/FAwZ2u679MaUfc7s72sBNqy
+UO0ZOFhad2U00+YEQywsBIhlt12Pgcyr1aLjx2hzlP/IWQjVBf69OrSFP0Sv/mnf
+gqvdubVnlBMdBMt1viqoJiQk2UrTK/ZPPzd2tUSZymB9zA==
+=SO+f
+-----END PGP PUBLIC KEY BLOCK-----
+"""
+
+# 192.168.8.201 's key
+MAINTAINER_KEYS_201 = """
+
+    build <build@wiselinksz.com>
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+mQENBFDaX0MBCAClkZLAlIFehVO24WMsQyJJt4J770iQKSv5Rj6TVenR9/yWfAUb
+sVYOOkUEfFsIirbPIuztHyyNzuSI6yqoNpclvbl8f0Y4VQapIN2qWJvDa8XIbKGQ
+J2Z/3FY8a2Qcd4mzcefodroHZ0DRtvnOtQL8LTZ/BVxKLT7+nCiQtwJ5eP7m4CsT
+mZIxTspbJkbju4OA4j42Hcz/5YlL5q5ovyEv0q+vpDlGnLETIkQmanhOWiIG6l1j
+fq4JySPJ8AR48nZcZrnEByf3L+0n9c47sUHlW5xHZ+ZRXADsIWJniKO1CejEqeDd
+YWnwIpRgkLQ4hT+70n+ONxb5YSn6b0wFtn1NABEBAAG0HGJ1aWxkIDxidWlsZEB3
+aXNlbGlua3N6LmNvbT6JATgEEwECACIFAlDaX0MCGwMGCwkIBwMCBhUIAgkKCwQW
+AgMBAh4BAheAAAoJEMDmKyWLok0T2ZMH/3ohWaV+v5/F5t1ecY7ynDsqhB6kGS2E
+ysUUUJmC7G06+cYdYphItj+9yOhhlnH7wn/CqAF7wrXDf6EL7nJ2vYj/KyobhbG7
+kOqMIGxTwVl0hr+V5A4oGBPDHM91mu6jhU6/pZl+b4p4mk6a1wbmzyVk7Dhu42fU
+4jMpC/Xdvmjy61fFU2QzypaapJbKDQeKFYYg4X5a6AK8ImxbtmVRhk+GxuLYYmF4
+UftvqGVZffownUfK5jFMLaSq2aYYHtGLv1PcD7wuxj5JqovdeRVU+9Ea7SZc79XR
+vm2miJQdZBtgUin8wpdmyA3Y+PSdn9Nwv0VzUdnt5eV4F4M6aqthIDy5AQ0EUNpf
+QwEIALoHsL9x0wto3TdWG3vYTDDjV3cwJNntJ7G5HGbr4jSq4BQ/ayi0dfGMxEXL
+e8csDP+m1UxrRZNiq4DxBfo8kLlehVf/1A4uJrmVvco7vVlhYFkvyaanQnsDsgR7
+6evfcTl96NA8KwtL8Utx1v8qPPuTd/XJDmAhbG0Yoz/gSC5k/rOxRu9hOxgNBPkG
+LpqnpxXwqOou5mmtpz3VJNdSC1d2vpVnONcbNWtYJAkTDqDqoO/XTsAhTvzfBf2E
+dGGxv9WuZsr5p8t5BYR7poFbOP3YtmeJ0gRCTgMPi3xh8dWT0yXKek0aK1eVygL5
+XVlwW4NoXUDfxI8KnsONIHIrDN8AEQEAAYkBHwQYAQIACQUCUNpfQwIbDAAKCRDA
+5isli6JNE5j+CACkHl7piSEONnu5gu4FOEUa3ZSiQ5AAUp11p0AOVeXR2S4O3Vi1
+fws4wjGmhfnzd+lJa9IZuwTAQst8pJYgWbyru+mShMgYngTj9pUC7bBHXuyVsN3B
+uXUgV+VRjUwOoF30aRE4Jxsz4lGEHM9Sih+e3wiSpAgpSn/1V5Pq8obEg8Pvf1mO
+sxku2dde2AbkR/fWKBQ8VKAuoGVBGPFBO7ujUWldgw2JvxVQNVF1TWVXkbwa9Jw6
+MzOaxO2BWk5REjnfx+Y6+MkY+PLQ1ygJPD+DTBdDCENnJyFBTPw7VDyn58TOL8LC
+1gaC+0pKXy1N9BAX1avmGZ/KBX8gOSNZLU3p
+=yiRS
+-----END PGP PUBLIC KEY BLOCK-----
+"""
+
+# 192.168.8.204 's key# 192.168.8.46 's key
+MAINTAINER_KEYS_204 = """
+
+    guxiaofeng <guxiaofeng@jlinksz.com>
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1
+
+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
++Q3I79b1rOr2oiNxpWgHN+BZaw8=
+=MpXb
+-----END PGP PUBLIC KEY BLOCK-----
+"""
+
+GIT = 'git'                     # our git command
+MIN_GIT_VERSION = (1, 5, 4)     # minimum supported git version
+repodir = '.repo'               # name of repo's private directory
+S_repo = 'repo'                 # special repo reposiory
+S_manifests = 'manifests'       # special manifest repository
+REPO_MAIN = S_repo + '/main.py' # main script
+
+
+import optparse
+import os
+import re
+import readline
+import subprocess
+import sys
+
+home_dot_repo = os.path.expanduser('~/.repoconfig')
+gpg_dir = os.path.join(home_dot_repo, 'gnupg')
+
+extra_args = []
+init_optparse = optparse.OptionParser(usage="repo init -u url [options]")
+
+# Logging
+group = init_optparse.add_option_group('Logging options')
+group.add_option('-q', '--quiet',
+                 dest="quiet", action="store_true", default=False,
+                 help="be quiet")
+
+# Manifest
+group = init_optparse.add_option_group('Manifest options')
+group.add_option('-u', '--manifest-url',
+                 dest='manifest_url',
+                 help='manifest repository location', metavar='URL')
+group.add_option('-b', '--manifest-branch',
+                 dest='manifest_branch',
+                 help='manifest branch or revision', metavar='REVISION')
+group.add_option('-m', '--manifest-name',
+                 dest='manifest_name',
+                 help='initial manifest file', metavar='NAME.xml')
+group.add_option('--mirror',
+                 dest='mirror', action='store_true',
+                 help='mirror the forrest')
+group.add_option('--reference',
+                 dest='reference',
+                 help='location of mirror directory', metavar='DIR')
+
+# Tool
+group = init_optparse.add_option_group('repo Version options')
+group.add_option('--repo-url',
+                 dest='repo_url',
+                 help='repo repository location', metavar='URL')
+group.add_option('--repo-branch',
+                 dest='repo_branch',
+                 help='repo branch or revision', metavar='REVISION')
+group.add_option('--no-repo-verify',
+                 dest='no_repo_verify', action='store_true',
+                 help='do not verify repo source code')
+
+
+class CloneFailure(Exception):
+  """Indicate the remote clone of repo itself failed.
+  """
+
+
+def _Init(args):
+  """Installs repo by cloning it over the network.
+  """
+  opt, args = init_optparse.parse_args(args)
+  if args or not opt.manifest_url:
+    init_optparse.print_usage()
+    sys.exit(1)
+
+  MAINTAINER_KEYS = ''
+  url = opt.repo_url
+  repoIp = '123'
+  if not url:
+    global REPO_URL
+    #print 'REPO_URL1:',REPO_URL
+    startP = opt.manifest_url.rfind('git@')
+    endP = opt.manifest_url.rfind(':alps')
+    repoIp = opt.manifest_url[startP+4:endP]
+    REPO_URL = 'git@'+repoIp+':jlink_repo.git'
+    #guxiaofeng same 192.168.8.46's key ##start
+    '''if repoIp == '192.168.8.204':
+        MAINTAINER_KEYS = MAINTAINER_KEYS_204
+    elif repoIp == '192.168.8.201':
+        MAINTAINER_KEYS = MAINTAINER_KEYS_201
+    elif repoIp == '192.168.8.46':
+        MAINTAINER_KEYS = MAINTAINER_KEYS_46'''
+    MAINTAINER_KEYS = MAINTAINER_KEYS_46
+    #guxiaofeng same 192.168.8.46's key ##end
+
+    #print 'MAINTAINER_KEYS:',MAINTAINER_KEYS
+    print 'REPO_URL:',REPO_URL
+    url = REPO_URL
+    extra_args.append('--repo-url=%s' % url)
+
+  branch = opt.repo_branch
+  if not branch:
+    branch = REPO_REV
+    extra_args.append('--repo-branch=%s' % branch)
+
+  if branch.startswith('refs/heads/'):
+    branch = branch[len('refs/heads/'):]
+  if branch.startswith('refs/'):
+    print >>sys.stderr, "fatal: invalid branch name '%s'" % branch
+    raise CloneFailure()
+
+  if not os.path.isdir(repodir):
+    try:
+      os.mkdir(repodir)
+    except OSError, e:
+      print >>sys.stderr, \
+            'fatal: cannot make %s directory: %s' % (
+            repodir, e.strerror)
+      # Don't faise CloneFailure; that would delete the
+      # name. Instead exit immediately.
+      #
+      sys.exit(1)
+
+  _CheckGitVersion()
+  try:
+    if _NeedSetupGnuPG(repoIp):
+      can_verify = _SetupGnuPG(opt.quiet, repoIp, MAINTAINER_KEYS)
+    else:
+      can_verify = True
+
+    if not opt.quiet:
+      print >>sys.stderr, 'Getting repo ...'
+      print >>sys.stderr, '   from %s' % url
+
+    dst = os.path.abspath(os.path.join(repodir, S_repo))
+    _Clone(url, dst, opt.quiet)
+
+    if can_verify and not opt.no_repo_verify:
+      rev = _Verify(dst, branch, opt.quiet)
+    else:
+      rev = 'refs/remotes/origin/%s^0' % branch
+
+    _Checkout(dst, branch, rev, opt.quiet)
+  except CloneFailure:
+    if opt.quiet:
+      print >>sys.stderr, \
+        'fatal: repo init failed; run without --quiet to see why'
+    raise
+
+
+def _CheckGitVersion():
+  cmd = [GIT, '--version']
+  proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+  ver_str = proc.stdout.read().strip()
+  proc.stdout.close()
+  proc.wait()
+
+  if not ver_str.startswith('git version '):
+    print >>sys.stderr, 'error: "%s" unsupported' % ver_str
+    raise CloneFailure()
+
+  ver_str = ver_str[len('git version '):].strip()
+  ver_act = tuple(map(lambda x: int(x), ver_str.split('.')[0:3]))
+  if ver_act < MIN_GIT_VERSION:
+    need = '.'.join(map(lambda x: str(x), MIN_GIT_VERSION))
+    print >>sys.stderr, 'fatal: git %s or later required' % need
+    raise CloneFailure()
+
+
+def _NeedSetupGnuPG(repoIp):
+  if not os.path.isdir(home_dot_repo):
+    return True
+
+  ip = os.path.join(gpg_dir, repoIp)
+  if not os.path.exists(ip):
+    return True
+
+  kv = os.path.join(home_dot_repo, 'keyring-version')
+  if not os.path.exists(kv):
+    return True
+
+  kv = open(kv).read()
+  if not kv:
+    return True
+
+  kv = tuple(map(lambda x: int(x), kv.split('.')))
+  if kv < KEYRING_VERSION:
+    return True
+  return False
+
+
+def _SetupGnuPG(quiet, repoIp, MAINTAINER_KEYS):
+  if not os.path.isdir(home_dot_repo):
+    try:
+      os.mkdir(home_dot_repo)
+    except OSError, e:
+      print >>sys.stderr, \
+            'fatal: cannot make %s directory: %s' % (
+            home_dot_repo, e.strerror)
+      sys.exit(1)
+  if os.path.isdir(gpg_dir):
+    os.system('rm -rf '+gpg_dir)
+  if not os.path.isdir(gpg_dir):
+    try:
+      os.mkdir(gpg_dir, 0700)
+      os.system('touch '+gpg_dir+'/'+repoIp)
+    except OSError, e:
+      print >>sys.stderr, \
+            'fatal: cannot make %s directory: %s' % (
+            gpg_dir, e.strerror)
+      sys.exit(1)
+
+  env = os.environ.copy()
+  env['GNUPGHOME'] = gpg_dir.encode()
+
+  cmd = ['gpg', '--import']
+  try:
+    proc = subprocess.Popen(cmd,
+                            env = env,
+                            stdin = subprocess.PIPE)
+  except OSError, e:
+    if not quiet:
+      print >>sys.stderr, 'warning: gpg (GnuPG) is not available.'
+      print >>sys.stderr, 'warning: Installing it is strongly encouraged.'
+      print >>sys.stderr
+    return False
+
+  proc.stdin.write(MAINTAINER_KEYS)
+  proc.stdin.close()
+
+  if proc.wait() != 0:
+    print >>sys.stderr, 'fatal: registering repo maintainer keys failed'
+    sys.exit(1)
+  print
+
+  fd = open(os.path.join(home_dot_repo, 'keyring-version'), 'w')
+  fd.write('.'.join(map(lambda x: str(x), KEYRING_VERSION)) + '\n')
+  fd.close()
+  return True
+
+
+def _SetConfig(local, name, value):
+  """Set a git configuration option to the specified value.
+  """
+  cmd = [GIT, 'config', name, value]
+  if subprocess.Popen(cmd, cwd = local).wait() != 0:
+    raise CloneFailure()
+
+
+def _Fetch(local, quiet, *args):
+  cmd = [GIT, 'fetch']
+  if quiet:
+    cmd.append('--quiet')
+    err = subprocess.PIPE
+  else:
+    err = None
+  cmd.extend(args)
+  cmd.append('origin')
+
+  proc = subprocess.Popen(cmd, cwd = local, stderr = err)
+  if err:
+    proc.stderr.read()
+    proc.stderr.close()
+  if proc.wait() != 0:
+    raise CloneFailure()
+
+
+def _Clone(url, local, quiet):
+  """Clones a git repository to a new subdirectory of repodir
+  """
+  try:
+    os.mkdir(local)
+  except OSError, e:
+    print >>sys.stderr, \
+          'fatal: cannot make %s directory: %s' \
+          % (local, e.strerror)
+    raise CloneFailure()
+
+  cmd = [GIT, 'init', '--quiet']
+  try:
+    proc = subprocess.Popen(cmd, cwd = local)
+  except OSError, e:
+    print >>sys.stderr
+    print >>sys.stderr, "fatal: '%s' is not available" % GIT
+    print >>sys.stderr, 'fatal: %s' % e
+    print >>sys.stderr
+    print >>sys.stderr, 'Please make sure %s is installed'\
+                        ' and in your path.' % GIT
+    raise CloneFailure()
+  if proc.wait() != 0:
+    print >>sys.stderr, 'fatal: could not create %s' % local
+    raise CloneFailure()
+
+  _SetConfig(local, 'remote.origin.url', url)
+  _SetConfig(local, 'remote.origin.fetch',
+                    '+refs/heads/*:refs/remotes/origin/*')
+  _Fetch(local, quiet)
+  _Fetch(local, quiet, '--tags')
+
+
+def _Verify(cwd, branch, quiet):
+  """Verify the branch has been signed by a tag.
+  """
+  cmd = [GIT, 'describe', 'origin/%s' % branch]
+  proc = subprocess.Popen(cmd,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          cwd = cwd)
+  cur = proc.stdout.read().strip()
+  proc.stdout.close()
+
+  proc.stderr.read()
+  proc.stderr.close()
+
+  if proc.wait() != 0 or not cur:
+    print >>sys.stderr
+    print >>sys.stderr,\
+      "fatal: branch '%s' has not been signed" \
+      % branch
+    raise CloneFailure()
+
+  m = re.compile(r'^(.*)-[0-9]{1,}-g[0-9a-f]{1,}$').match(cur)
+  if m:
+    cur = m.group(1)
+    if not quiet:
+      print >>sys.stderr
+      print >>sys.stderr, \
+        "info: Ignoring branch '%s'; using tagged release '%s'" \
+        % (branch, cur)
+      print >>sys.stderr
+
+  env = os.environ.copy()
+  env['GNUPGHOME'] = gpg_dir.encode()
+
+  cmd = [GIT, 'tag', '-v', cur]
+  proc = subprocess.Popen(cmd,
+                          stdout = subprocess.PIPE,
+                          stderr = subprocess.PIPE,
+                          cwd = cwd,
+                          env = env)
+  out = proc.stdout.read()
+  proc.stdout.close()
+
+  err = proc.stderr.read()
+  proc.stderr.close()
+
+  if proc.wait() != 0:
+    print >>sys.stderr
+    print >>sys.stderr, out
+    print >>sys.stderr, err
+    print >>sys.stderr
+    raise CloneFailure()
+  return '%s^0' % cur
+
+
+def _Checkout(cwd, branch, rev, quiet):
+  """Checkout an upstream branch into the repository and track it.
+  """
+  cmd = [GIT, 'update-ref', 'refs/heads/default', rev]
+  if subprocess.Popen(cmd, cwd = cwd).wait() != 0:
+    raise CloneFailure()
+
+  _SetConfig(cwd, 'branch.default.remote', 'origin')
+  _SetConfig(cwd, 'branch.default.merge', 'refs/heads/%s' % branch)
+
+  cmd = [GIT, 'symbolic-ref', 'HEAD', 'refs/heads/default']
+  if subprocess.Popen(cmd, cwd = cwd).wait() != 0:
+    raise CloneFailure()
+
+  cmd = [GIT, 'read-tree', '--reset', '-u']
+  if not quiet:
+    cmd.append('-v')
+  cmd.append('HEAD')
+  if subprocess.Popen(cmd, cwd = cwd).wait() != 0:
+    raise CloneFailure()
+
+
+def _FindRepo():
+  """Look for a repo installation, starting at the current directory.
+  """
+  dir = os.getcwd()
+  repo = None
+
+  olddir = None
+  while dir != '/' \
+    and dir != olddir \
+    and not repo:
+    repo = os.path.join(dir, repodir, REPO_MAIN)
+    if not os.path.isfile(repo):
+      repo = None
+      olddir = dir
+      dir = os.path.dirname(dir)
+  return (repo, os.path.join(dir, repodir))
+
+
+class _Options:
+  help = False
+
+
+def _ParseArguments(args):
+  cmd = None
+  opt = _Options()
+  arg = []
+
+  for i in xrange(0, len(args)):
+    a = args[i]
+    if a == '-h' or a == '--help':
+      opt.help = True
+
+    elif not a.startswith('-'):
+      cmd = a
+      arg = args[i + 1:]
+      break
+  return cmd, opt, arg
+
+
+def _Usage():
+  print >>sys.stderr,\
+"""usage: repo COMMAND [ARGS]
+
+repo is not yet installed.  Use "repo init" to install it here.
+
+The most commonly used repo commands are:
+
+  init      Install repo in the current working directory
+  help      Display detailed help on a command
+
+For access to the full online help, install repo ("repo init").
+"""
+  sys.exit(1)
+
+
+def _Help(args):
+  if args:
+    if args[0] == 'init':
+      init_optparse.print_help()
+      sys.exit(0)
+    else:
+      print >>sys.stderr,\
+      "error: '%s' is not a bootstrap command.\n"\
+      '        For access to online help, install repo ("repo init").'\
+      % args[0]
+  else:
+    _Usage()
+  sys.exit(1)
+
+
+def _NotInstalled():
+  print >>sys.stderr,\
+'error: repo is not installed.  Use "repo init" to install it here.'
+  sys.exit(1)
+
+
+def _NoCommands(cmd):
+  print >>sys.stderr,\
+"""error: command '%s' requires repo to be installed first.
+       Use "repo init" to install it here.""" % cmd
+  sys.exit(1)
+
+
+def _RunSelf(wrapper_path):
+  my_dir = os.path.dirname(wrapper_path)
+  my_main = os.path.join(my_dir, 'main.py')
+  my_git = os.path.join(my_dir, '.git')
+
+  if os.path.isfile(my_main) and os.path.isdir(my_git):
+    for name in ['git_config.py',
+                 'project.py',
+                 'subcmds']:
+      if not os.path.exists(os.path.join(my_dir, name)):
+        return None, None
+    return my_main, my_git
+  return None, None
+
+
+def _SetDefaultsTo(gitdir):
+  global REPO_URL
+  global REPO_REV
+
+  REPO_URL = gitdir
+  proc = subprocess.Popen([GIT,
+                           '--git-dir=%s' % gitdir,
+                           'symbolic-ref',
+                           'HEAD'],
+                          stdout = subprocess.PIPE,
+                          stderr = subprocess.PIPE)
+  REPO_REV = proc.stdout.read().strip()
+  proc.stdout.close()
+
+  proc.stderr.read()
+  proc.stderr.close()
+
+  if proc.wait() != 0:
+    print >>sys.stderr, 'fatal: %s has no current branch' % gitdir
+    sys.exit(1)
+
+
+def main(orig_args):
+  main, dir = _FindRepo()
+  cmd, opt, args = _ParseArguments(orig_args)
+
+  wrapper_path = os.path.abspath(__file__)
+  my_main, my_git = _RunSelf(wrapper_path)
+
+  if not main:
+    if opt.help:
+      _Usage()
+    if cmd == 'help':
+      _Help(args)
+    if not cmd:
+      _NotInstalled()
+    if cmd == 'init':
+      if my_git:
+        _SetDefaultsTo(my_git)
+      try:
+        _Init(args)
+      except CloneFailure:
+        for root, dirs, files in os.walk(repodir, topdown=False):
+          for name in files:
+            os.remove(os.path.join(root, name))
+          for name in dirs:
+            os.rmdir(os.path.join(root, name))
+        os.rmdir(repodir)
+        sys.exit(1)
+      main, dir = _FindRepo()
+    else:
+      _NoCommands(cmd)
+
+  if my_main:
+    main = my_main
+
+  ver_str = '.'.join(map(lambda x: str(x), VERSION))
+  me = [main,
+        '--repo-dir=%s' % dir,
+        '--wrapper-version=%s' % ver_str,
+        '--wrapper-path=%s' % wrapper_path,
+        '--']
+  me.extend(orig_args)
+  me.extend(extra_args)
+  #print 'main1:',main
+  #print 'me1:',me
+  try:
+    os.execv(main, me)
+    #exec python -E main me
+  except OSError, e:
+    print >>sys.stderr, "fatal: unable to start %s" % main
+    print >>sys.stderr, "fatal: %s" % e
+    sys.exit(148)
+
+
+if __name__ == '__main__':
+  main(sys.argv[1:])
+
