@@ -1,0 +1,6 @@
+https://blog.ixnet.work/2017/08/24/shadowsocks-ppa/
+
+apt install software-properties-common
+add-apt-repository ppa:fsgmhoward/shadowsocks-libev
+apt update
+apt install shadowsocks-libev
