@@ -4,20 +4,21 @@
     "error": "/var/log/v2ray/error.log",
     "loglevel": "debug"
   },
-
   "inbound": {
-    "port": 5541,
+   "port": 5541,
     "protocol": "vmess",
     "settings": {
-      "clients": [{  
-	"id": "0d16f6b3-092b-4f25-b8ec-7dbf5f2f8a9c",
-	"security": "aes-128-gcm",
-	"alterId": 64,
+      "clients": [{
+      	"id": "0d16f6b3-092b-4f25-b8ec-7dbf5f2f8a9c",
+	    "security": "aes-128-gcm",
+    	"alterId": 64,
       }]
     }
   },
   "outbound": {
     "protocol": "freedom",
     "settings": {}
-  }
+  },
+
 }
+
