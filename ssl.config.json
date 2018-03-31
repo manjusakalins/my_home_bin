@@ -1,8 +1,6 @@
 {
       "server": "0.0.0.0",
       "server_port": 6611,
-      "local_address":"127.0.0.1",
-      "local_port":1087,
       "password": "LSS@123#222@lmm",
       "method": "aes-256-gcm",
       "plugin": "obfs-server",
