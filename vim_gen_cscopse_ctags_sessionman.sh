@@ -9,6 +9,6 @@ ctags -R $1
 
 echo "please call cscope"
 cscope
-mv cscope.out /media/2Tdata/souce_code/vimrc/home_vim_stuff/viminfos/$2/$2.cscope.out
-mv tags /media/2Tdata/souce_code/vimrc/home_vim_stuff/viminfos/$2/$2.tags
+mv cscope.out ~/.vim/viminfos/$2/$2.cscope.out
+mv tags ~/.vim/viminfos/$2/$2.tags
 
