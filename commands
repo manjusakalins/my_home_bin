@@ -1,0 +1,211 @@
+//
+rm -rf tombstone*;adb pull /data/tombstones/; ls | awk '{system("echo "$0"; cat "$0" | grep systemTid; cat "$0" | grep \">>>\"")}'
+
+git config --global https.proxy http://127.0.0.1:1080
+git config --global https.proxy https://127.0.0.1:1080
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+
+//for hwinfo table sub map
+ALTER TABLE hwinfo_new_sw_project_map2_sca_project ADD COLUMN sub_bsp_project VARCHAR(100) NOT NULL DEFAULT ''; 
+ALTER TABLE `jlinkSwSuiteCom`.`hwinfo_new_sw_project_map2_sca_project` ADD CONSTRAINT `CON_bsp_project` FOREIGN KEY (`sub_bsp_project`) REFERENCES `jlinkSwSuiteCom`.`hwinfo_sca_project`(`sca_project`) ON UPDATE CASCADE ON DELETE CASCADE ; 
+
+ALTER TABLE hwinfo_sca CHANGE COLUMN  `mtest_size`  `lcd_backlight` VARCHAR(100)
+INSERT INTO hwinfo_item (`sca_project`, `hw_identity`, `hw_value`, `hw_type`, `info`) VALUES ('common','SUB_FOV_21', '1', 'camera_fov_sub', '后置摄像头FOV=21°');
+
+
+
+ALTER TABLE `jlinkSwSuiteCom`.`hwinfo_new_sw_project_map2_sca_project` ADD CONSTRAINT `CON_sub_camera_fov_main` FOREIGN KEY (`sub_camera_fov_main`) REFERENCES `jlinkSwSuiteCom`.`hwinfo_sca_project`(`camera_fov_main`) ON UPDATE CASCADE ON DELETE CASCADE ; 
+
+./makeMtk -t -o=ENABLE_USER2ENG=true,TARGET_BUILD_VARIANT=user,TARGET_CUSTOM=LEFUER-D1,VERSION_CODE=CC041 d101 new
+setprop sys.usb.config adb,ffs,mass_storage;
+
+setprop sys.usb.config mass_storage,adb;
+setprop ro.sys.usb.storage.type mass_storage,adb
+
+setprop sys.usb.config mass_storage,adb,acm
+
+
+setprop sys.usb.config adb;
+
+setprop sys.usb.config mtp,adb
+sshfs -o nonempty,noatime -p 22 "buildserver"@192.168.8.241:"/home/buildserver/new_man/" /home/manjusaka/tmp/work_code_dir
+
+adb shell cat /sys/bus/platform/drivers/ddr_type/ddr_type
+
+echo c > /proc/sysrq-trigger
+
+sshfs -o nonempty,noatime -p 22 "buildserver"@192.168.8.240:"/home/buildserver/" /home/manjusaka/tmp/work_code_dir
+
+mtklogger
+*#*#3646633#*#*
+ *#*#83781#*#*-
+
+PROJECT=$(cat makeMtk.ini | grep project | awk '{print $3}'); mkbootimg --kernel ./out/target/product/$PROJECT/obj/KERNEL_OBJ/kernel_$PROJECT.bin --ramdisk ./out/target/product/$PROJECT/ramdisk.img -o ./out/target/product/$PROJECT/boot.img
+
+8G:
+newfs_msdos -O android -s 16777216  /dev/block/mmcblk0p8
+
+cat /sys/power/wake_lock
+ro.secure=1
+ro.allow.mock.location=0
+ro.debuggable=0
+persist.sys.usb.config=mass_storage,adb
+
+
+//MODEM
+./make.sh JRDSH82_W_TMOUS_KK_HSPA.mak new 
+cd ~/all_codes/kkmt6582/mediatek/build/tools
+./modemRenameCopy.pl  ~/all_codes/modem/kk_82_modem/    JRDSH82_W_TMOUS_KK_HSPA
+
+
+sudo smbmount //192.168.8.205/data1/ /home/manjusaka/cur_images/server_ftp/data1 -o username=linhuasheng,password=mobile#3  
+//sudo smbmount //192.168.8.208/wiselinksz_ftp/wiselinktool/data ~/ftp_images/ -o username=linhuasheng,password=mobile#3
+sudo smbmount //192.168.8.208/wiselinksz_ftp/wiselinktool/data /home/manjusaka/cur_images/ftp_imagess/ -o username=linhuasheng,password=mobile#3 
+sudo smbmount //192.168.8.205/data1/ /home/manjusaka/cur_images/data1/ -o username=linhuasheng,password=mobile#3 
+sudo smbmount //192.168.8.208/home/zhengruitong/1Tdata /home/manjusaka/cur_images/zrt_data/ -o username=zhengruitong,password=123456
+sudo smbmount //192.168.8.208/public ~/tmpdir/ -o username=linhuasheng,password=mobile#3
+
+./makeMtk -t -o=TARGET_BUILD_VARIANT=user,VERSION_CODE=EA0XXX i698 new
+
+-o=OUT_DIR=../project_out/
+
+adb shell ps | grep system_server | awk '{system("adb shell kill "$2)}'
+
+echo 0 > /sys/module/printk/parameters/disable_uart
+
+echo 1 > /sys/module/printk/parameters/disable_uart
+
+echo 1 > /sys/module/printk/parameters/ignore_loglevel
+
+echo 9 > debug
+echo 1 > dbg_uart
+
+cat /sys/bus/platform/drivers/ddr_type/ddr_type
+
+./makeMtk -t -o=OUT_DIR=../project_out/42d101_release,TARGET_BUILD_VARIANT=user,VERSION_CODE=CC01X d101 new 
+
+./makeMtk -t -o=TARGET_BUILD_VARIANT=user,VERSION_CODE=CC01X d101 new 
+
+setprop sys.usb.config=mtp,adb
+
+ramdisk image
+mkbootfs root | minigzip > first.img;mkimage first.img ROOTFS > ramdisk.img
+
+mkbootfs ../project_out/d101/target/product/d101/root | minigzip > first.img;mkimage first.img ROOTFS > ../project_out/d101/target/product/d101/ramdisk.img;mkbootimg --kernel ../project_out/d101/target/product/d101/obj/KERNEL_OBJ/kernel_d101.bin --ramdisk ../project_out/d101/target/product/d101/ramdisk.img -o ../project_out/d101/target/product/d101/boot.img
+
+
+//for adb debug
+ro.debuggable=1
+ro.secure=0
+ro.adb.secure=0
+ro.sys.usb.storage.type=mass_storage,adb
+sys.usb.config=mass_storage,adb
+persist.sys.usb.config=mass_storage,adb
+
+mkbootfs root | minigzip > first.img;mkimage first.img ROOTFS > ramdisk.img;
+mkbootimg --kernel ../project_out/d101/target/product/d101/obj/KERNEL_OBJ/kernel_d101.bin --ramdisk ../project_out/d101/target/product/d101/ramdisk.img -o ../project_out/d101/target/product/d101/boot.img
+
+mkbootimg --kernel ./out/target/product/zh960/obj/KERNEL_OBJ/kernel_zh960.bin --ramdisk ./out/target/product/zh960/ramdisk.img -o out/target/product/zh960/boot.img
+mkbootimg --kernel ./out/target/product/jrdhz92_cw_hz_kk/obj/KERNEL_OBJ/kernel_jrdhz92_cw_hz_kk.bin --ramdisk ./out/target/product/jrdhz92_cw_hz_kk/ramdisk.img -o out/target/product/jrdhz92_cw_hz_kk/boot.img
+
+mkbootimg --kernel ./out/target/product/j960_mt6592_32_kk/obj/KERNEL_OBJ/kernel_j960_mt6592_32_kk.bin --ramdisk ./out/target/product/j960_mt6592_32_kk/ramdisk.img -o out/target/product/j960_mt6592_32_kk/boot.img
+
+//unpack ramdisk
+dd if=ramdisk.img of=sramdisk.img bs=1 skip=512
+gunzip -c sramdisk.img | cpio -i
+dd if=ramdisk.img of=sramdisk.img bs=1 skip=2048
+
+//find
+find -path ".*/.*" -prune -o -print
+find . \( -path ".*/.*" -o -path "*/out" \) -prune -o -print
+find -path ".*/.*" -prune -o \( ! -name "*.cmd" -a ! -name "*.o" -a ! -name "*.so" \) -print
+find . \( -path ".*/.*" -o -path "*/out" \) -prune -o -type f -print | xargs grep MTK_LCM_PHYSICAL_ROTATION
+
+Hi, bsp:
+     目前项目比较多，对于客户需求配置的SCA的工作分开来，每人负责不同的项目的项目工作吧，也好大家都去熟悉下：         
+
+         华胜：D101, D610, D706, D710。
+         秀林：I450, I456,
+         王正：I500,  I698
+         瑞通：i960, i737
+
+SYS组请知悉。
+
+
+
+pack
+out_d101_BASELINE_CC000H/host/linux-x86/bin/make_ext4fs -s  -S out_d101_BASELINE_CC000H/target/product/d101/root/file_contexts -l 800M -a system out_d101_BASELINE_CC000H/target/product/d101/obj/PACKAGING/systemimage_intermediates/system.img out_d101_BASELINE_CC000H/target/product/d101/system
+
+
+make_ext4fs -s -S project_out/i500/target/product/i500/root/file_contexts -l 967835648 -a data project_out/i500/target/product/i500/userdata.img project_out/i500/target/product/i500/data
+mkuserimg.sh -s project_out/i500/target/product/i500/data project_out/i500/target/product/i500/userdata.img ext4 data 967835648 project_out/i500/target/product/i500/root/file_contexts
+
+地址栏中的历史记录保存在注册表中，位置为
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\TypedPaths
+
+
+repo init -u git@192.168.8.204:alps/manifest.git -m spr9832a_m0_dev.xml
+
+repo init -u git@192.168.8.201:alps/manifest.git -m mtk6572vf-jb3-dev.xml
+repo sync -j8
+repo start master --all
+
+git clone git@192.168.8.201:alps/tools_bsp
+
+
+mkbootimg --kernel ./out/target/product/$PROJECT/obj/KERNEL_OBJ/kernel_$PROJECT.bin --ramdisk ./out/target/product/$PROJECT/ramdisk.img -o ./out/target/product/$PROJECT/boot.img
+
+
+
+vpn密码修改如下，请勿对外透露：
+
+jlinksz#2
+
+On 2014年04月30日 09:20, guxiaofeng wrote:
+> 已经包年：
+>
+> 加速器：https://www.51jsq.org /help.shtml?tglog=index
+> 帐号：guxf210
+> 密码：mobile#3
+>
+> 举例：64.34.205.174
+>
+https://online.mediatek.com
+用户：qinfanzhong@topwise3g.com
+密码：qfz20438
+
+
+mtk6580-l1-import.xml
+
+update ddr3
+find . -name "*ddr3*" | awk '{system("cp ../../out/target/product/i686/preloader_i686.bin "$0)}'
+
+
+mtk:
+Zhiren.zhong@joyatel.com
+joyatelsz2
+3563277263
+
+ftp://zhiren.zhong@joyatel.com@mft.mediatek.com/Inbox/DCC/2016-0428-1234-52000690
+
+flash tool
+4058: get memory failed: emmc failed.
+4032: enable memory failed.
+
+
+Jlinktimes123
+
+fast replace
+find . -name "ProjectConfig.mk" | sed -e '/CUSTOM_MODEM =/c CUSTOM_MODEM = common_modem\/mt6580_demo_hspa_default_125 common_modem\/mt6580_demo_hspa_128 K960_spec'
+
+
+徐彩霞
+吴穗玲
+徐国洪
+张杏莲
+汤超华
+李晓玲
+俞洋
+
+
